@@ -55,8 +55,7 @@
 <body>
 <canvas id="gameCanvas"></canvas>
 <div class="controls">
-  <button id="startBtn">Start</button>
-  <button id="pauseBtn">Pause</button>
+  <button id="start-pause-button">Start</button>
   <button id="resetBtn">Reset</button>
 </div>
 <script>
@@ -153,16 +152,29 @@
     animationId = requestAnimationFrame(gameLoop);
   }
 
+  function isGridEmpty() {
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        if (grid[row][col]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   function startGame() {
-    if (!animationId) {
-      document.getElementById("startBtn").classList.add("executing");
+    if (isGridEmpty()) {
+      alert("Please draw on the canvas before initializing.");
+    } else if (!animationId) {
+      document.getElementById("start-pause-button").classList.add("executing");
       gameLoop();
     }
   }
 
   function pauseGame() {
     if (animationId) {
-      document.getElementById("startBtn").classList.remove("executing");
+      document.getElementById("start-pause-button").classList.remove("executing");
       cancelAnimationFrame(animationId);
       animationId = null;
     }
@@ -170,6 +182,8 @@
 
   function resetGame() {
     pauseGame();
+    isRunning = false;
+    startPauseButton.textContent = 'Start';
     document.getElementById("resetBtn").classList.add("executing");
     grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
     drawGrid();
@@ -184,6 +198,7 @@
   let isDrawing = false;
   let prevRow = null;
   let prevCol = null;
+  let isRunning = false; // Declare and initialize isRunning variable
 
   canvas.addEventListener("mousedown", (event) => {
     isDrawing = true;
@@ -206,6 +221,27 @@
     isDrawing = false;
     prevRow = null;
     prevCol = null;
+  });
+  
+  const startPauseButton = document.getElementById('start-pause-button');
+  const resetButton = document.getElementById('resetBtn');
+
+  resetButton.addEventListener('click', () => {
+    resetGame();
+  });
+
+  startPauseButton.addEventListener('click', () => {
+    if (isRunning) {
+      pauseGame();
+      startPauseButton.textContent = 'Start';
+      isRunning = false;
+    } else {
+      startGame();
+      if (animationId) {
+        startPauseButton.textContent = 'Pause';
+        isRunning = true;
+      }
+    }
   });
 
   function toggleCell(event) {
@@ -249,10 +285,6 @@
     }
   }
 
-  document.getElementById("startBtn").addEventListener("click", startGame);
-  document.getElementById("pauseBtn").addEventListener("click", pauseGame);
-  document.getElementById("resetBtn").addEventListener("click", resetGame);
-
   function getCellCoordinates(e, canvas, gridSize) {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX || e.touches[0].clientX;
@@ -284,6 +316,7 @@
   canvas.addEventListener('touchstart', handleMouseEvent);
   canvas.addEventListener('touchmove', handleMouseEvent);
   canvas.addEventListener('touchend', handleMouseEvent);
+
 </script>
 </body>
 </html>
