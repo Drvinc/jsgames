@@ -56,7 +56,7 @@
 <canvas id="gameCanvas"></canvas>
 <div class="controls">
   <button id="start-pause-button">Start</button>
-  <button id="resetBtn">Reset</button>
+  <button id="resetBtn">Clear</button>
   <button id="refreshBtn">Refresh</button>
 </div>
 <script>
@@ -70,7 +70,7 @@
 
   let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
 
-  function createRandomGlider() {
+  function createRandomPatterns() {
     const gliderPatterns = [
       [
         [0, 0, 1],
@@ -82,30 +82,60 @@
         [0, 1, 1],
         [1, 1, 0]
       ],
+      [
+        [0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 0],
+      ],
+      [
+        [0, 1, 1, 0, 0],
+        [1, 1, 0, 1, 1],
+        [0, 1, 1, 1, 1],
+        [0, 0, 1, 1, 0],
+      ],
     ];
 
     function rotate(matrix) {
-      return matrix[0].map((_, col) => matrix.map(row => row[col])).reverse();
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        const result = new Array(cols);
+
+        for (let i = 0; i < cols; i++) {
+            result[i] = new Array(rows);
+            for (let j = 0; j < rows; j++) {
+            result[i][j] = matrix[j][cols - 1 - i];
+            }
+        }
+
+        return result;
     }
 
-    const allPatterns = gliderPatterns.flatMap(pattern => [
-      pattern,
-      rotate(pattern),
-      rotate(rotate(pattern)),
-      rotate(rotate(rotate(pattern)))
+    const allPatterns = gliderPatterns.flatMap((pattern) => [
+        pattern,
+        rotate(pattern),
+        rotate(rotate(pattern)),
+        rotate(rotate(rotate(pattern))),
     ]);
 
-    const randomPattern = allPatterns[Math.floor(Math.random() * allPatterns.length)];
+    const randomPatterns = Array.from({ length: numPatterns }, () =>
+    allPatterns[Math.floor(Math.random() * allPatterns.length)]
+    );
 
-    const patternSize = randomPattern.length;
-    const startRow = Math.floor(gridSize / 2) - Math.floor(patternSize / 2)+3;
-    const startCol = Math.floor(gridSize / 2) - Math.floor(patternSize / 2);
+    randomPatterns.forEach((pattern) => {
+        const patternRows = pattern.length;
+        const patternCols = pattern[0].length;
+        const startRow =
+        Math.floor(Math.random() * (gridSize - patternRows + 1));
+        const startCol =
+        Math.floor(Math.random() * (gridSize - patternCols + 1));
 
-    for (let row = 0; row < patternSize; row++) {
-      for (let col = 0; col < patternSize; col++) {
-        grid[startRow + row][startCol + col] = randomPattern[row][col] === 1;
-      }
-    }
+        for (let row = 0; row < patternRows; row++) {
+        for (let col = 0; col < patternCols; col++) {
+            grid[startRow + row][startCol + col] = pattern[row][col] === 1;
+        }
+        }
+    });
   }
  
   let animationId;
@@ -193,7 +223,8 @@
     }, 300);
   }
   
-  createRandomGlider();
+  const numPatterns = Math.floor(Math.random() * 3) + 1;
+  createRandomPatterns(numPatterns);
   drawGrid();
 
   let isDrawing = false;
