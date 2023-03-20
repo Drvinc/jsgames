@@ -196,7 +196,7 @@
 
   function startGame() {
     if (isGridEmpty()) {
-      alert("Please draw on the canvas before initializing.");
+      alert("To start Game of Life, please\n (1) draw on the canvas before Start, or\n (2) click Refresh to get random ships.");
     } else if (!animationId) {
       document.getElementById("start-pause-button").classList.add("executing");
       gameLoop();
