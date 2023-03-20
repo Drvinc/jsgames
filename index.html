@@ -57,6 +57,7 @@
 <div class="controls">
   <button id="start-pause-button">Start</button>
   <button id="resetBtn">Reset</button>
+  <button id="refreshBtn">Refresh</button>
 </div>
 <script>
   const canvas = document.getElementById("gameCanvas");
@@ -316,6 +317,11 @@
   canvas.addEventListener('touchstart', handleMouseEvent);
   canvas.addEventListener('touchmove', handleMouseEvent);
   canvas.addEventListener('touchend', handleMouseEvent);
+
+  const refreshBtn = document.getElementById('refreshBtn');
+  refreshBtn.addEventListener('click', () => {
+    location.reload();
+  });
 
 </script>
 </body>
