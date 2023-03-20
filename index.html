@@ -252,6 +252,38 @@
   document.getElementById("startBtn").addEventListener("click", startGame);
   document.getElementById("pauseBtn").addEventListener("click", pauseGame);
   document.getElementById("resetBtn").addEventListener("click", resetGame);
+
+  function getCellCoordinates(e, canvas, gridSize) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+    const cellSize = canvas.width / gridSize;
+
+    const col = Math.floor((x - rect.left) / cellSize);
+    const row = Math.floor((y - rect.top) / cellSize);
+
+    return { row, col };
+  }
+
+  function handleMouseEvent(e) {
+    e.preventDefault();
+    const { row, col } = getCellCoordinates(e, canvas, gridSize);
+    if (e.type === 'mousedown' || e.type === 'touchstart') {
+      isDrawing = !grid[row][col];
+    }
+    if (isDrawing) {
+      grid[row][col] = e.type !== 'mouseup' && e.type !== 'touchend';
+      drawGrid();
+    }
+  }
+
+  canvas.addEventListener('mousedown', handleMouseEvent);
+  canvas.addEventListener('mousemove', handleMouseEvent);
+  canvas.addEventListener('mouseup', handleMouseEvent);
+
+  canvas.addEventListener('touchstart', handleMouseEvent);
+  canvas.addEventListener('touchmove', handleMouseEvent);
+  canvas.addEventListener('touchend', handleMouseEvent);
 </script>
 </body>
 </html>
