@@ -276,15 +276,12 @@
     }
   });
 
-  function toggleCell(event) {
-    const { row, col } = getCellCoords(event);
+  function toggleCell(row, col) {
     grid[row][col] = !grid[row][col];
     drawGrid();
   }
 
-  function fillCell(event) {
-    const { row, col } = getCellCoords(event);
-
+  function fillCell(row, col) {
     if (prevRow !== null && prevCol !== null) {
       interpolateCells(prevRow, prevCol, row, col);
     }
@@ -334,20 +331,25 @@
     const { row, col } = getCellCoordinates(e, canvas, gridSize);
     if (e.type === 'mousedown' || e.type === 'touchstart') {
       isDrawing = !grid[row][col];
-    }
-    if (isDrawing) {
-      grid[row][col] = e.type !== 'mouseup' && e.type !== 'touchend';
-      drawGrid();
+      toggleCell(row, col);
+    } else if (isDrawing && (e.type === 'mousemove' || e.type === 'touchmove')) {
+      fillCell(row, col);
+    } else {
+      isDrawing = false;
+      prevRow = null;
+      prevCol = null;
     }
   }
 
   canvas.addEventListener('mousedown', handleMouseEvent);
   canvas.addEventListener('mousemove', handleMouseEvent);
   canvas.addEventListener('mouseup', handleMouseEvent);
+  canvas.addEventListener('mouseleave', handleMouseEvent);
 
   canvas.addEventListener('touchstart', handleMouseEvent);
   canvas.addEventListener('touchmove', handleMouseEvent);
   canvas.addEventListener('touchend', handleMouseEvent);
+  canvas.addEventListener('touchcancel', handleMouseEvent);
 
   const refreshBtn = document.getElementById('refreshBtn');
   refreshBtn.addEventListener('click', () => {
