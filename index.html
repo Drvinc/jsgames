@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conway's Game of Life</title>
+<style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      border: 1px solid #000;
+      position: relative;
+    }
+    .controls {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      bottom: 3%;
+      left: 0;
+      right: 0;
+      margin-bottom: 5px;
+    }
+    button {
+      margin: 5px;
+      background-color: #6200ee;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-weight: 500;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      opacity: 0.5;
+    }
+    button:hover {
+      background-color: #3700b3;
+      opacity: 0.5;
+    }
+    button.executing {
+      opacity: 0.95;
+    }
+
+  </style>
+  
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<div class="controls">
+  <button id="startBtn">Start</button>
+  <button id="pauseBtn">Pause</button>
+  <button id="resetBtn">Reset</button>
+</div>
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  const gridSize = 30;
+  const cellSize = Math.min(window.innerWidth, window.innerHeight) / gridSize;
+
+  canvas.width = gridSize * cellSize;
+  canvas.height = gridSize * cellSize;
+
+  let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
+
+  function createRandomGlider() {
+    const gliderPatterns = [
+      [
+        [0, 0, 1],
+        [1, 0, 1],
+        [0, 1, 1]
+      ],
+      [
+        [1, 0, 0],
+        [0, 1, 1],
+        [1, 1, 0]
+      ],
+    ];
+
+    function rotate(matrix) {
+      return matrix[0].map((_, col) => matrix.map(row => row[col])).reverse();
+    }
+
+    const allPatterns = gliderPatterns.flatMap(pattern => [
+      pattern,
+      rotate(pattern),
+      rotate(rotate(pattern)),
+      rotate(rotate(rotate(pattern)))
+    ]);
+
+    const randomPattern = allPatterns[Math.floor(Math.random() * allPatterns.length)];
+
+    const patternSize = randomPattern.length;
+    const startRow = Math.floor(gridSize / 2) - Math.floor(patternSize / 2)+3;
+    const startCol = Math.floor(gridSize / 2) - Math.floor(patternSize / 2);
+
+    for (let row = 0; row < patternSize; row++) {
+      for (let col = 0; col < patternSize; col++) {
+        grid[startRow + row][startCol + col] = randomPattern[row][col] === 1;
+      }
+    }
+  }
+ 
+  let animationId;
+
+  function drawGrid() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        if (grid[row][col]) {
+          ctx.fillStyle = "#000";
+          ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  }
+
+  function updateGrid() {
+    const newGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        let liveNeighbors = 0;
+        for (let i = -1; i <= 1; i++) {
+          for (let j = -1; j <= 1; j++) {
+            if (i === 0 && j === 0) continue;
+            const newRow = (row + i + gridSize) % gridSize;
+            const newCol = (col + j + gridSize) % gridSize;
+            if (grid[newRow][newCol]) liveNeighbors++;
+          }
+        }
+
+        if (grid[row][col] && (liveNeighbors === 2 || liveNeighbors === 3)) {
+          newGrid[row][col] = true;
+        } else if (!grid[row][col] && liveNeighbors === 3) {
+          newGrid[row][col] = true;
+        }
+      }
+    }
+
+    grid = newGrid;
+  }
+
+  function gameLoop() {
+    updateGrid();
+    drawGrid();
+    animationId = requestAnimationFrame(gameLoop);
+  }
+
+  function startGame() {
+    if (!animationId) {
+      document.getElementById("startBtn").classList.add("executing");
+      gameLoop();
+    }
+  }
+
+  function pauseGame() {
+    if (animationId) {
+      document.getElementById("startBtn").classList.remove("executing");
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+  }
+
+  function resetGame() {
+    pauseGame();
+    document.getElementById("resetBtn").classList.add("executing");
+    grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
+    drawGrid();
+    setTimeout(() => {
+      document.getElementById("resetBtn").classList.remove("executing");
+    }, 300);
+  }
+  
+  createRandomGlider();
+  drawGrid();
+
+  let isDrawing = false;
+  let prevRow = null;
+  let prevCol = null;
+
+  canvas.addEventListener("mousedown", (event) => {
+    isDrawing = true;
+    toggleCell(event);
+  });
+
+  canvas.addEventListener("mousemove", (event) => {
+    if (isDrawing) {
+      fillCell(event);
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    isDrawing = false;
+    prevRow = null;
+    prevCol = null;
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    isDrawing = false;
+    prevRow = null;
+    prevCol = null;
+  });
+
+  function toggleCell(event) {
+    const { row, col } = getCellCoords(event);
+    grid[row][col] = !grid[row][col];
+    drawGrid();
+  }
+
+  function fillCell(event) {
+    const { row, col } = getCellCoords(event);
+
+    if (prevRow !== null && prevCol !== null) {
+      interpolateCells(prevRow, prevCol, row, col);
+    }
+
+    grid[row][col] = true;
+    prevRow = row;
+    prevCol = col;
+    drawGrid();
+  }
+
+  function getCellCoords(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const row = Math.floor(y / cellSize);
+    const col = Math.floor(x / cellSize);
+    return { row, col };
+  }
+
+  function interpolateCells(prevRow, prevCol, row, col) {
+    const dRow = Math.abs(row - prevRow);
+    const dCol = Math.abs(col - prevCol);
+
+    const maxDist = Math.max(dRow, dCol);
+
+    for (let i = 1; i <= maxDist; i++) {
+      const r = prevRow + Math.round((i / maxDist) * (row - prevRow));
+      const c = prevCol + Math.round((i / maxDist) * (col - prevCol));
+      grid[r][c] = true;
+    }
+  }
+
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("pauseBtn").addEventListener("click", pauseGame);
+  document.getElementById("resetBtn").addEventListener("click", resetGame);
+</script>
+</body>
+</html>
