@@ -282,29 +282,6 @@
   let prevRow = null;
   let prevCol = null;
   let isRunning = false; // Declare and initialize isRunning variable
-
-  canvas.addEventListener("mousedown", (event) => {
-    isDrawing = true;
-    toggleCell(event);
-  });
-
-  canvas.addEventListener("mousemove", (event) => {
-    if (isDrawing) {
-      fillCell(event);
-    }
-  });
-
-  canvas.addEventListener("mouseup", () => {
-    isDrawing = false;
-    prevRow = null;
-    prevCol = null;
-  });
-
-  canvas.addEventListener("mouseleave", () => {
-    isDrawing = false;
-    prevRow = null;
-    prevCol = null;
-  });
   
   const startPauseButton = document.getElementById('start-pause-button');
   const resetButton = document.getElementById('resetBtn');
@@ -382,14 +359,14 @@
     const { row, col } = getCellCoordinates(e, canvas, gridSize);
 
     if (e.type === 'mousedown' || e.type === 'touchstart') {
-      isDrawing = !grid[row][col];
-      toggleCell(row, col);
+        isDrawing = !grid[row][col];
+        toggleCell(row, col);
     } else if (isDrawing && (e.type === 'mousemove' || e.type === 'touchmove')) {
-      fillCell(row, col);
+        fillCell(row, col);
     } else if (e.type === 'mouseup' || e.type === 'mouseleave' || e.type === 'touchend' || e.type === 'touchcancel') {
-      isDrawing = false;
-      prevRow = null;
-      prevCol = null;
+        isDrawing = false;
+        prevRow = null;
+        prevCol = null;
     }
   }
 
