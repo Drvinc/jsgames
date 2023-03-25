@@ -4,7 +4,7 @@ document.getElementById('save-qr').addEventListener('click', saveQRCodeAsPNG);
 function generateQRCode() {
     const inputText = document.getElementById('input-text').value;
     const qrCodeCanvas = document.getElementById('qr-code');
-    const canvasSize = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+    const canvasSize = Math.min(window.innerWidth * 0.95, window.innerHeight * 0.95);
 
     // Clear the canvas before generating a new QR code
     qrCodeCanvas.width = canvasSize;
@@ -26,6 +26,7 @@ function displayInputText(inputText) {
     const inputDisplay = document.getElementById('input-display');
     inputDisplay.textContent = inputText;
     inputDisplay.style.display = 'block';
+    inputDisplay.style.bottom = (qrCodeCanvas.height - inputDisplay.offsetHeight - 1) + 'px';
 }
 
 function saveQRCodeAsPNG() {
