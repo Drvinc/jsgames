@@ -21,14 +21,14 @@
     }
     canvas {
       border: 1px solid #000;
-      position: relative;
+      display: block;
+      margin: 0 auto;
     }
     .controls {
       position: absolute;
       display: flex;
       justify-content: center;
       align-items: center;
-      bottom: 3%;
       left: 0;
       right: 0;
       margin-bottom: 5px;
@@ -88,7 +88,7 @@
 
   let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
 
-  function createRandomPatterns() {
+  function createRandomPatterns(numPatterns) {
     const gliderPatterns = [
       [
         [0, 0, 1],
@@ -202,8 +202,10 @@
     }
   }
 
-
   function updateGrid() {
+    // rule 1: Any live cell with two or three live neighbors survives.
+    // rule 2: Any dead cell with exactly three live neighbors becomes a live cell.
+    // rule 3: All other live cells die in the next generation. 
     const newGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
@@ -274,7 +276,10 @@
     }, 300);
   }
   
-  const numPatterns = Math.floor(Math.random() * 3) + 1;
+  function setNumPatterns(n) {
+    return Math.floor(Math.random() * n) + 1;
+  }
+  const numPatterns = setNumPatterns(3);
   createRandomPatterns(numPatterns);
   drawGrid();
 
@@ -380,10 +385,45 @@
   canvas.addEventListener('touchend', handleInputEvent);
   canvas.addEventListener('touchcancel', handleInputEvent);
 
+  function handleRefresh() {
+    // 1. Pause the game and update the button state
+    pauseGame();
+    startPauseButton.textContent = 'Start';
+    isRunning = false;
+
+    // 2. Clear the grid
+    grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
+
+    // 3. Create new random patterns on the grid
+    var numPatterns1 = setNumPatterns(3);
+    createRandomPatterns(numPatterns1);
+    console.log(numPatterns1)
+
+    // 4. Draw the updated grid
+    drawGrid();
+  }
+
   const refreshBtn = document.getElementById('refreshBtn');
-  refreshBtn.addEventListener('click', () => {
-    location.reload();
-  });
+  refreshBtn.addEventListener('click', handleRefresh);
+
+  function positionControls() {
+    const controls = document.querySelector(".controls");
+    const canvasRect = canvas.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+
+    if (canvasRect.bottom + 5 + controls.offsetHeight < windowHeight) {
+      controls.style.top = (canvasRect.bottom + 5) + 'px';
+    } else {
+      controls.style.top = (canvasRect.bottom - 5 - controls.offsetHeight) + 'px';
+    }
+
+    controls.style.left = ((windowWidth - controls.offsetWidth) / 2) + 'px';
+  }
+
+  window.addEventListener("resize", positionControls);
+
+  positionControls();
 
 </script>
 </body>
