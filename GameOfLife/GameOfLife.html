@@ -381,6 +381,7 @@
   function handleMouseEvent(e) {
     e.preventDefault();
     const { row, col } = getCellCoordinates(e, canvas, gridSize);
+
     if (e.type === 'mousedown' || e.type === 'touchstart') {
       isDrawing = !grid[row][col];
       toggleCell(row, col);
@@ -388,6 +389,11 @@
       fillCell(row, col);
     } else {
       isDrawing = false;
+      prevRow = null;
+      prevCol = null;
+    }
+
+    if (e.type === 'touchend' || e.type === 'touchcancel') {
       prevRow = null;
       prevCol = null;
     }
