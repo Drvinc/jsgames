@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conway's Game of Life</title>
 <style>
+    html,body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
     body {
       margin: 0;
       display: flex;
@@ -65,8 +70,21 @@
   const gridSize = 30;
   const cellSize = Math.min(window.innerWidth, window.innerHeight) / gridSize;
 
+  const controlHeight = 50; // Height reserved for the control buttons
+  const maxSize = Math.min(window.innerWidth, window.innerHeight - controlHeight);
+
   canvas.width = gridSize * cellSize;
   canvas.height = gridSize * cellSize;
+
+  // Check if the canvas size exceeds the available size and adjust if needed
+  if (canvas.width > maxSize) {
+    cellSize = Math.floor(maxSize / gridSize);
+    canvas.width = gridSize * cellSize;
+  }
+  if (canvas.height > maxSize) {
+    cellSize = Math.floor(maxSize / gridSize);
+    canvas.height = gridSize * cellSize;
+  }
 
   let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
 
@@ -140,8 +158,40 @@
  
   let animationId;
 
+  ctx.strokeStyle = "#e0e0e0";
+  ctx.lineWidth = 0.5;
+
+  for (let i = 1; i < gridSize; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * cellSize, 0);
+    ctx.lineTo(i * cellSize, canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i * cellSize);
+    ctx.lineTo(canvas.width, i * cellSize);
+    ctx.stroke();
+  }
+
   function drawGrid() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw light and thin grid lines
+    ctx.strokeStyle = "#e0e0e0";
+    ctx.lineWidth = 0.5;
+
+    for (let i = 1; i < gridSize; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * cellSize, 0);
+      ctx.lineTo(i * cellSize, canvas.height);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, i * cellSize);
+      ctx.lineTo(canvas.width, i * cellSize);
+      ctx.stroke();
+    }
+
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
         if (grid[row][col]) {
@@ -151,6 +201,7 @@
       }
     }
   }
+
 
   function updateGrid() {
     const newGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
