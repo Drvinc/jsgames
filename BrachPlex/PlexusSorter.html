@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brachial Plexus Diagram</title>
+  <style>
+    svg {
+      min-width: 475px;
+      min-height: 275px;
+    }
+    rect {
+      fill: lightblue;
+      stroke: black;
+    }
+    text {
+      font-family: Helvetica;
+      font-size: 10px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+    .anterior {
+      stroke: black;
+      stroke-width: 2;
+    }
+    .posterior {
+      stroke: grey;
+      stroke-width: 2;
+      stroke-dasharray: 5, 5;
+    }
+  </style>
+</head>
+<body>
+  <svg viewBox="0 0 475 275" preserveAspectRatio="xMidYMid meet"></svg> 
+  <script>
+    const nodes = [
+      { id: 'C5', x: 50, y: 50 },
+      { id: 'C6', x: 50, y: 100 },
+      { id: 'C7', x: 50, y: 150 },
+      { id: 'C8', x: 50, y: 200 },
+      { id: 'T1', x: 50, y: 250 },
+      { id: 'Superior', x: 175, y: 75 },
+      { id: 'Middle', x: 175, y: 150 },
+      { id: 'Inferior', x: 175, y: 225 },
+      { id: 'Lateral', x: 300, y: 75 },
+      { id: 'Posterior', x: 300, y: 150 },
+      { id: 'Medial', x: 300, y: 225 },
+      { id: 'Musculocutaneous', x: 425, y: 50 },
+      { id: 'Axillary', x: 425, y: 100 },
+      { id: 'Radial', x: 425, y: 150 },
+      { id: 'Median', x: 425, y: 200 },
+      { id: 'Ulnar', x: 425, y: 250 },
+    ];
+
+    const anteriorEdges = [
+      ['C5', 'Superior'],
+      ['C6', 'Superior'],
+      ['C7', 'Middle'],
+      ['C8', 'Inferior'],
+      ['T1', 'Inferior'],
+      ['Superior', 'Lateral'],
+      ['Middle', 'Lateral'],
+      ['Inferior', 'Medial'],
+      ['Lateral', 'Musculocutaneous'],
+      ['Lateral', 'Median'],
+      ['Medial', 'Median'],
+      ['Medial', 'Ulnar'],
+    ];
+
+    const posteriorEdges = [
+      ['Superior', 'Posterior'],
+      ['Middle', 'Posterior'],
+      ['Inferior', 'Posterior'],
+      ['Posterior', 'Axillary'],
+      ['Posterior', 'Radial'],
+    ];
+
+    const svg = document.querySelector('svg');
+    
+    nodes.forEach(node => {
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', node.x - 30);
+      rect.setAttribute('y', node.y - 12.5);
+      rect.setAttribute('width', 60);
+      rect.setAttribute('height', 25);
+      rect.setAttribute('rx', 5);
+      rect.setAttribute('ry', 5);
+      svg.appendChild(rect);
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', node.x);
+      text.setAttribute('y', node.y);
+      text.textContent = node.id;
+      svg.appendChild(text);
+    });
+
+    function drawEdge(fromNode, toNode, className) {
+      const startX = fromNode.x + 30;
+      const startY = fromNode.y;
+      const endX = toNode.x - 30;
+      const endY = toNode.y;
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', startX);
+      line.setAttribute('y1', startY);
+      line.setAttribute('x2', endX);
+      line.setAttribute('y2', endY);
+      line.setAttribute('class', className);
+      svg.appendChild(line);
+    }
+
+    function findNode(id) {
+      return nodes.find(node => node.id === id);
+    }
+
+    anteriorEdges.forEach(edge => {
+      drawEdge(findNode(edge[0]), findNode(edge[1]), 'anterior');
+    });
+
+    posteriorEdges.forEach(edge => {
+      drawEdge(findNode(edge[0]), findNode(edge[1]), 'posterior');
+    });
+  </script>
+</body>
+</html>
