@@ -1,3 +1,3 @@
 # JS Games
-* ChatGPT assisted coding.
+* ChatGPT-assisted coding.
 * Webpage: [https://drvinc.github.io/jsgames/](https://drvinc.github.io/jsgames/)
