@@ -10,11 +10,11 @@ const nodes = [
   { id: 'Lateral', x: 300, y: 55 },
   { id: 'Posterior', x: 300, y: 130 },
   { id: 'Medial', x: 300, y: 205 },
-  { id: 'Musculocutaneous', x: 425, y: 30 },
-  { id: 'Axillary', x: 425, y: 80 },
-  { id: 'Radial', x: 425, y: 130 },
-  { id: 'Median', x: 425, y: 180 },
-  { id: 'Ulnar', x: 425, y: 230 },
+  { id: 'Musculocut', x: 425, y: 30, connections: ['Lateral', 'Superior', 'Middle','C5', 'C6', 'C7'] },
+  { id: 'Axillary', x: 425, y: 80, connections: ['Posterior', 'Superior','C5', 'C6'] },
+  { id: 'Radial', x: 425, y: 130, connections: ['Posterior','Superior','Middle','Inferior','C5','C6','C7','C8','T1'] },
+  { id: 'Median', x: 425, y: 180, connections: ['Medial','Lateral','Inferior','Middle','Superior','C6','C7','C8','T1'] },
+  { id: 'Ulnar', x: 425, y: 230, connections: ['Medial','Inferior','C8','T1'] },
 ];
 
 const anteriorEdges = [
@@ -26,7 +26,7 @@ const anteriorEdges = [
   ['Superior', 'Lateral'],
   ['Middle', 'Lateral'],
   ['Inferior', 'Medial'],
-  ['Lateral', 'Musculocutaneous'],
+  ['Lateral', 'Musculocut'],
   ['Lateral', 'Median'],
   ['Medial', 'Median'],
   ['Medial', 'Ulnar'],
@@ -54,6 +54,54 @@ function adjustSvgViewBox() {
 adjustSvgViewBox();
 window.addEventListener('resize', adjustSvgViewBox);
 
+
+function highlightNode(id, state) {
+  const node = findNode(id);
+  if (state) {
+    node.rect.setAttribute('class', 'highlight-node');
+  } else {
+    node.rect.removeAttribute('class');
+  }
+}
+
+function highlightEdge(edge, state) {
+  if (state) {
+    edge.line.setAttribute('class', 'highlight-edge');
+  } else {
+    edge.line.setAttribute('class', edge.className);
+  }
+}
+
+function shouldHighlightEdge(edge, node) {
+  const [from, to] = edge;
+  const isConnectedDirectly = from === node.id || to === node.id;
+  const isConnectedIndirectly = node.connections.includes(from) && node.connections.includes(to);
+
+  return isConnectedDirectly || isConnectedIndirectly;
+}
+
+function handleMouseEnter(node) {
+  highlightNode(node.id, true);
+  node.connections.forEach(connectionId => highlightNode(connectionId, true));
+
+  drawnAnteriorEdges.concat(drawnPosteriorEdges).forEach(edgeObj => {
+    if (shouldHighlightEdge([edgeObj.from, edgeObj.to], node)) {
+      highlightEdge(edgeObj, true);
+    }
+  });
+}
+
+function handleMouseLeave(node) {
+  highlightNode(node.id, false);
+  node.connections.forEach(connectionId => highlightNode(connectionId, false));
+
+  drawnAnteriorEdges.concat(drawnPosteriorEdges).forEach(edgeObj => {
+    if (shouldHighlightEdge([edgeObj.from, edgeObj.to], node)) {
+      highlightEdge(edgeObj, false);
+    }
+  });
+}
+
 nodes.forEach(node => {
   const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   rect.setAttribute('x', node.x - 30);
@@ -69,6 +117,14 @@ nodes.forEach(node => {
   text.setAttribute('y', node.y);
   text.textContent = node.id;
   svg.appendChild(text);
+
+  // Add the rect element to the node object
+  node.rect = rect;
+
+  rect.addEventListener('mouseenter', () => handleMouseEnter(node));
+  rect.addEventListener('mouseleave', () => handleMouseLeave(node));
+  text.addEventListener('mouseenter', () => handleMouseEnter(node));
+  text.addEventListener('mouseleave', () => handleMouseLeave(node));
 });
 
 function drawEdge(fromNode, toNode, className) {
@@ -84,6 +140,8 @@ function drawEdge(fromNode, toNode, className) {
   line.setAttribute('y2', endY);
   line.setAttribute('class', className);
   svg.appendChild(line);
+
+  return line;
 }
 
 function findNode(id) {
@@ -97,3 +155,17 @@ anteriorEdges.forEach(edge => {
 posteriorEdges.forEach(edge => {
   drawEdge(findNode(edge[0]), findNode(edge[1]), 'posterior');
 });
+
+const drawnAnteriorEdges = anteriorEdges.map(edge => ({
+  from: edge[0],
+  to: edge[1],
+  className: 'anterior',
+  line: drawEdge(findNode(edge[0]), findNode(edge[1]), 'anterior'),
+}));
+
+const drawnPosteriorEdges = posteriorEdges.map(edge => ({
+  from: edge[0],
+  to: edge[1],
+  className: 'posterior',
+  line: drawEdge(findNode(edge[0]), findNode(edge[1]), 'posterior'),
+}));
