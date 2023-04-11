@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resolve PMIDs</title>
+  <style>
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      background-color: #6200ee;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 500;
+      margin: 0;
+      padding: 16px;
+    }
+
+    textarea, button, input[type="range"] {
+      font-family: 'Roboto', sans-serif;
+    }
+
+    textarea {
+      background-color: #f1f1f1;
+      border: none;
+      padding: 8px;
+      width: 100%;
+    }
+
+    button {
+      background-color: #6200ee;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      padding: 8px 16px;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #3700b3;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 400;
+      margin-right: 8px;
+    }
+
+    input[type="range"] {
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resolve PMIDs</h1>
+  <textarea id="pmids" rows="10" cols="30" placeholder="Enter PMIDs separated by a newline"></textarea><br>
+  <button onclick="resolvePMIDs()">Resolve PMID</button>
+  <button onclick="clearResults()">Clear results</button>
+  <label for="duration">API Call Delay (ms):</label>
+  <input type="range" id="duration" name="duration" min="50" max="500" value="150">
+  <span id="durationValue">150</span><br><br>
+  <div class="table-container">
+  <table id="results">
+    <tr>
+      <th>Year</th>
+      <th>Journal</th>
+      <th>Authors</th>
+      <th>Title</th>
+      <th>PMID</th>
+      <th>DOI</th>
+      <th>Citation</th>
+      <th>Short Citation</th>
+    </tr>
+  </table>
+  </div>
+  <script src="pmid.js"></script>
+</body>
+</html>
