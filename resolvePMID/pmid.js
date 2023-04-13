@@ -55,17 +55,17 @@ async function resolvePMIDs() {
         authorList += ", et al. ";
       }
     }
-    if (numAuthors < 3) {
+    if (numAuthors <= 3) {
       authorList = authorList + ". ";
     }
     const authorFirst = result.sortfirstauthor;
     const volume = result.volume;
     const issue = result.issue;
     const pages = result.pages;
-    const citationText = authorList + title + " " + journal + ". " + year + ";" + volume + "(" + issue + "):" + pages + ". " + "doi:" + doi;
+    const citationText = authorList + title + " " + journal + ". " + year + ";" + volume + (issue ? "(" + issue + ")" : "") + ":" + pages + ". " + "doi:" + doi;
     const pmidLink = `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
     const doiLink = `https://doi.org/${doi}`;
-    const citationShortText = (numAuthors > 1 ? authorFirst + ", et al" : authorFirst) + ". " + journal + ". " + year + ";" + volume + "(" + issue + "):" + pages + ". " + "doi:" + doi;
+    const citationShortText = (numAuthors > 1 ? authorFirst + ", et al" : authorFirst) + ". " + journal + ". " + year + ";" + volume + (issue ? "(" + issue + ")" : "") + ":" + pages + ". " + "doi:" + doi;
 
     // Add the result to the table
     const newRow = resultsTable.insertRow(-1);
