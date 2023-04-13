@@ -1,47 +1,60 @@
-let video;
-let handPose;
-let handResult;
 
-function setup() {
-  createCanvas(640, 480);
-  video = createCapture(VIDEO);
-  video.size(width, height);
-  video.hide();
+(async () => {
+  const video = document.createElement('video');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  let handResult;
 
-  handPose = new Hands({locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
-  handPose.setOptions({
+  // Add the canvas to the body
+  document.body.appendChild(canvas);
+
+  // Set up the video stream
+  video.width = 640;
+  video.height = 480;
+  canvas.width = 640;
+  canvas.height = 480;
+
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+  video.play();
+
+  const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+  hands.setOptions({
     maxNumHands: 1,
     minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
+    minTrackingConfidence: 0.5,
   });
-  handPose.onResults(onResults);
 
-  const camera = new Camera(video.elt, {
-    onFrame: async () => {
-      await handPose.send({image: video.elt});
-    },
-    width: width,
-    height: height
+  hands.onResults(onResults);
+
+  video.addEventListener('loadeddata', () => {
+    const updateHands = async () => {
+      try {
+        await hands.send({ image: video });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+      requestAnimationFrame(updateHands);
+    };
+    updateHands();
   });
-  camera.start();
-}
+
+  function draw() {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
 
 function onResults(results) {
   handResult = results;
-}
-
-function draw() {
-  image(video, 0, 0, width, height);
 
   if (handResult && handResult.multiHandLandmarks) {
     for (const landmarks of handResult.multiHandLandmarks) {
       const indexFingerTip = landmarks[8];
-      const thumbTip = landmarks[4];
-
-      fill(255, 0, 0);
-      noStroke();
-      ellipse(indexFingerTip.x * width, indexFingerTip.y * height, 15, 15);
-      ellipse(thumbTip.x * width, thumbTip.y * height, 15, 15);
+      console.log('Index finger tip location:', indexFingerTip.x, indexFingerTip.y);
     }
   }
 }
