@@ -75,8 +75,8 @@ async function resolvePMIDs() {
     newRow.insertCell(3).textContent = title;
     newRow.insertCell(4).innerHTML = `<a href="${pmidLink}" target="_blank">${pmid}</a>`;
     newRow.insertCell(5).innerHTML = `<a href="${doiLink}" target="_blank">${doi}</a>`;
-    newRow.insertCell(6).innerHTML = citationText.replace(journal, `<i>${journal}</i>`).replace(doiText, `<a href="${doiLink}" target="_blank">${doiText}</a>`); // Make journal name italic and DOI a link
-    newRow.insertCell(7).innerHTML = citationShortText.replace(journal, `<i>${journal}</i>`).replace(doiText, `<a href="${doiLink}" target="_blank">${doiText}</a>`); // Make journal name italic and DOI a link
+    newRow.insertCell(6).innerHTML = citationText.replace(journal, `<em>${journal}</em>`).replace(doiText, `<a href="${doiLink}" target="_blank">${doiText}</a>`); // Make journal name italic and DOI a link
+    newRow.insertCell(7).innerHTML = citationShortText.replace(journal, `<em>${journal}</em>`).replace(doiText, `<a href="${doiLink}" target="_blank">${doiText}</a>`); // Make journal name italic and DOI a link
 
     await new Promise(r => setTimeout(r, duration));
   }
